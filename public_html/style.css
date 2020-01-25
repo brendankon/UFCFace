@@ -12,6 +12,24 @@ body {
     margin-top: 50px;
     margin-bottom: 80px;
 }
+
+.emptyBox{
+    position: relative;
+    top: 0;
+    left: 0;
+}
+
+.userImage{
+    position: absolute;
+    top: 324px;
+    left: 283px;
+}
+
+.fighterImage{
+    position: absolute;
+    top: 324px;
+    left: 659px;
+}
 h1 {
     font-size: 30px;
     text-align: center;

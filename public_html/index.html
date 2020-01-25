@@ -4,6 +4,9 @@
         <title>UFC Face</title>
         <link href ="style.css" rel="stylesheet"/>
         <link href="https://fonts.googleapis.com/css?family=Anton&display=swap" rel="stylesheet">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script type="text/javascript" src="UFCFace.js"></script>
+        <script src="image-clipper.js"></script>
         <meta name="description" content="">
         <meta name="keywords" content="">
     </head>
@@ -12,9 +15,10 @@
             <img src="UFCFace.JPG" alt="UFC Face Logo">
             <h1 id="description">Which UFC Champion Are YOU!</h1>
             <div class="boxes">
-                <img src="PicBox.JPG" alt="Pic Box 1">
-                <img src="PicBox.JPG" alt="Pic Box 2" style="padding-left:50px">
+                <img src="PicBox.jpg" alt="PicBox1" id="PicBox1" width=322 height=380 class="emptyBox">
+                <img src="PicBox.jpg" alt="PicBox2" id="PicBox2" width=322 height=380 style="padding-left:50px" class="emptyBox">
             </div>
+                <input type="file"  accept="image/jpeg" name="image" id="file" onchange="loadFile()" style="display: none;">
                 <button id="button">Choose File</button>
         </div>
     </body>
