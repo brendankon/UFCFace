@@ -1,0 +1,39 @@
+body {
+    background: black;
+}
+
+.title{
+    text-align: center;
+    margin-top: 80px;
+}
+
+.boxes{
+    text-align: center;
+    margin-top: 50px;
+    margin-bottom: 80px;
+}
+h1 {
+    font-size: 30px;
+    text-align: center;
+    padding-top: 10px;
+    padding-bottom: 25px;
+    font-family: Arial;
+    font-style: italic;
+    letter-spacing: 5px;
+    color: white
+}
+
+button {
+     padding: 15px 50px;
+     font-size: 35px;
+     font-family: 'Anton', sans-serif;
+     letter-spacing: 2px;
+     margin: auto;
+     display: block;
+     background-color: white;
+     color: black;
+}
+
+form{
+    padding-top: 20px;
+}
