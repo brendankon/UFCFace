@@ -7,10 +7,9 @@ body {
     margin-top: 80px;
 }
 
-.boxes{
+.bottom{
     text-align: center;
     margin-top: 50px;
-    margin-bottom: 80px;
 }
 
 .emptyBox{
@@ -19,22 +18,11 @@ body {
     left: 0;
 }
 
-.userImage{
-    position: absolute;
-    top: 324px;
-    left: 283px;
-}
-
-.fighterImage{
-    position: absolute;
-    top: 324px;
-    left: 659px;
-}
 h1 {
     font-size: 30px;
     text-align: center;
     padding-top: 10px;
-    padding-bottom: 25px;
+    padding-bottom: 50px;
     font-family: Arial;
     font-style: italic;
     letter-spacing: 5px;
@@ -50,8 +38,4 @@ button {
      display: block;
      background-color: white;
      color: black;
-}
-
-form{
-    padding-top: 20px;
 }

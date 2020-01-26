@@ -5,21 +5,25 @@
         <link href ="style.css" rel="stylesheet"/>
         <link href="https://fonts.googleapis.com/css?family=Anton&display=swap" rel="stylesheet">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-        <script type="text/javascript" src="UFCFace.js"></script>
-        <script src="image-clipper.js"></script>
-        <meta name="description" content="">
-        <meta name="keywords" content="">
+        <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.0/dist/tf.min.js"></script>
+        <script src="jquery.facedetection.min.js"></script>
+        <script src="UFCFace.js"></script>
+        <meta name="description" content="Ever wonder which UFC champion you look like most? Well look no further than UFC Face!">
+        <meta name="keywords" content="UFC, Face, Face Detection, MMA, CNN, UFCFace, UFC Face">
     </head>
     <body>
         <div class="title">
             <img src="UFCFace.JPG" alt="UFC Face Logo">
             <h1 id="description">Which UFC Champion Are YOU!</h1>
-            <div class="boxes">
-                <img src="PicBox.jpg" alt="PicBox1" id="PicBox1" width=322 height=380 class="emptyBox">
-                <img src="PicBox.jpg" alt="PicBox2" id="PicBox2" width=322 height=380 style="padding-left:50px" class="emptyBox">
-            </div>
+            <canvas id="boxes" width=700 height=400>
+                <img src="PicBox.jpg" alt="PicBox1" id="PicBox1" class="emptyBox" width="322" height="380">
+                <img src="PicBox.jpg" alt="PicBox2" id="PicBox2" style="padding-left:50px" class="emptyBox" width="322" height="380">
+            </canvas>
+            <div class="bottom">
                 <input type="file"  accept="image/jpeg" name="image" id="file" onchange="loadFile()" style="display: none;">
                 <button id="button">Choose File</button>
+            </div> 
+            <img alt="netData" id="netData" style="display:none">
         </div>
     </body>
 </html>
