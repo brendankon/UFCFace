@@ -8,10 +8,12 @@ window.onload = function(){
     var button = document.getElementById("button");
     var canvas = document.getElementById("boxes");
     var context = canvas.getContext('2d');
+    var canvas2 = document.getElementById("boxes2");
+    var context2 = canvas2.getContext('2d');
     var image1 = document.getElementById("PicBox1");
     var image2 = document.getElementById("PicBox2");
     context.drawImage(image1, 0, 0);
-    context.drawImage(image2, 380, 0);
+    context2.drawImage(image2, 40, 0);
     button.onclick = function(){
         imageSelect.click();
     };
@@ -20,6 +22,9 @@ window.onload = function(){
 //Function for detecting face in user image, and displaying it on screen
 function showImage(src, target, callback){
     var image1 = document.getElementById("PicBox1");
+    var canvas = document.getElementById("boxes");
+    var context = canvas.getContext('2d');
+    var degrees;
     var fr = new FileReader();
     var valid = null;
     fr.onload = function(){
@@ -27,9 +32,16 @@ function showImage(src, target, callback){
     };
     //Update user image source
     fr.readAsDataURL(src.files[0]);
+    orientation(src.files[0], function(base64img, value){
+        var rotated = $('#PicBox1').attr('src', base64img);
+        if(value){
+            degrees = rotation[value];
+        }
+    });
+    
     image1.onload = function(){
-        var canvas = document.getElementById("boxes");
-        var context = canvas.getContext('2d');
+        context.clearRect(0,0,322,380);
+        drawBestFit(context, degrees * Math.PI / 180, image1);
         var header = document.getElementById("description");
         //Detect face in user image, return if no face is found
         $('#PicBox1').faceDetection({
@@ -51,6 +63,36 @@ function showImage(src, target, callback){
         callback(valid);
     };
 }
+
+function drawBestFit(ctx, angle, image) {
+    
+    var canvas = document.getElementById("boxes");
+    var dist = Math.sqrt(Math.pow(canvas.width, 2) + Math.pow(canvas.height, 2));
+    var diagAngle = Math.asin(canvas.height / dist);
+
+    var a1 = ((angle % (Math.PI * 2)) + Math.PI * 4) % (Math.PI * 2);
+    if (a1 > Math.PI)
+      a1 -= Math.PI;
+    if (a1 > Math.PI / 2 && a1 <= Math.PI)
+      a1 = (Math.PI / 2) - (a1 - (Math.PI / 2));
+  
+    var ang1 = Math.PI / 2 - diagAngle - Math.abs(a1);
+    var ang2 = Math.abs(diagAngle - Math.abs(a1));
+    
+    var scale1 = Math.cos(ang1) * dist / image.height;
+    var scale2 = Math.cos(ang2) * dist / image.width;
+    
+    var scale = Math.max(scale1, scale2);
+    
+    var dx = Math.cos(angle) * scale;
+    var dy = Math.sin(angle) * scale;
+    ctx.setTransform(dx, dy, -dy, dx, canvas.width / 2, canvas.height / 2);
+    
+    ctx.drawImage(image, -image.width / 2, -image.height / 2, image.width, image.height);
+    
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transformations when done
+
+  }
 
 function getPrediction(valid){
     //Check if face was detected earlier, and return if not
@@ -75,7 +117,7 @@ function getPrediction(valid){
         var head = document.getElementById("description");
         //Update header with network's predicted class
         head.innerHTML = champs[max];
-        var canvas = document.getElementById("boxes");
+        var canvas = document.getElementById("boxes2");
         var context = canvas.getContext('2d');
         var image2 = document.getElementById("PicBox2");
         image2.src = "Classes/" + champs[max] + ".jpg";
@@ -104,3 +146,68 @@ function loadFile(){
     var imageSelect = document.getElementById("file");
     showImage(imageSelect, image, getPrediction);
 }
+
+var rotation = {
+  1: 0,
+  3: 180,
+  6: 90,
+  8: 270
+};
+
+function _arrayBufferToBase64( buffer ) {
+  var binary = ''
+  var bytes = new Uint8Array( buffer )
+  var len = bytes.byteLength;
+  for (var i = 0; i < len; i++) {
+    binary += String.fromCharCode( bytes[ i ] )
+  }
+  return window.btoa( binary );
+}
+
+var orientation = function (file, callback) {
+    var fileReader = new FileReader();
+    fileReader.onloadend = function () {
+        var base64img = "data:" + file.type + ";base64," + _arrayBufferToBase64(fileReader.result);
+        var scanner = new DataView(fileReader.result);
+        var idx = 0;
+        var value = 1; // Non-rotated is the default
+        if (fileReader.result.length < 2 || scanner.getUint16(idx) != 0xFFD8) {
+            // Not a JPEG
+            if (callback) {
+                callback(base64img, value);
+            }
+            return;
+        }
+        idx += 2;
+        var maxBytes = scanner.byteLength;
+        var littleEndian = false;
+        while (idx < maxBytes - 2) {
+            var uint16 = scanner.getUint16(idx, littleEndian);
+            idx += 2;
+            switch (uint16) {
+                case 0xFFE1: // Start of EXIF
+                    var endianNess = scanner.getUint16(idx + 8);
+                    // II (0x4949) Indicates Intel format - Little Endian
+                    // MM (0x4D4D) Indicates Motorola format - Big Endian
+                    if (endianNess === 0x4949) {
+                        littleEndian = true;
+                    }
+                    var exifLength = scanner.getUint16(idx, littleEndian);
+                    maxBytes = exifLength - idx;
+                    idx += 2;
+                    break;
+                case 0x0112: // Orientation tag
+                    // Read the value, its 6 bytes further out
+                    // See page 102 at the following URL
+                    // http://www.kodak.com/global/plugins/acrobat/en/service/digCam/exifStandard2.pdf
+                    value = scanner.getUint16(idx + 6, littleEndian);
+                    maxBytes = 0; // Stop scanning
+                    break;
+            }
+        }
+        if (callback) {
+            callback(base64img, value);
+        }
+    }
+    fileReader.readAsArrayBuffer(file);
+};
