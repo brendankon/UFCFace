@@ -2,6 +2,7 @@
 var champs = ["Henry Cejudo", "Israel Adesanya", "Jon Jones", "Khabib Nurmagomedov", "Conor McGregor",
              "Stipe Miocic", "Amanda Nunes", "Valentina Shevchenko", "Kamaru Usman", "Alexander Volkanovski",
              "Weili Zhang"];
+var imgData;
 
 window.onload = function(){
     var imageSelect = document.getElementById("file");
@@ -24,6 +25,9 @@ function showImage(src, target, callback){
     var image1 = document.getElementById("PicBox1");
     var canvas = document.getElementById("boxes");
     var context = canvas.getContext('2d');
+    var netData = document.getElementById("netData");
+    var header = document.getElementById("description");
+    header.innerHTML = "Analyzing...";
     var degrees;
     var fr = new FileReader();
     var valid = null;
@@ -42,10 +46,10 @@ function showImage(src, target, callback){
     image1.onload = function(){
         context.clearRect(0,0,322,380);
         drawBestFit(context, degrees * Math.PI / 180, image1);
-        var header = document.getElementById("description");
         //Detect face in user image, return if no face is found
-        $('#PicBox1').faceDetection({
+        $('#boxes').faceDetection({
             complete: function (faces) {
+                console.log(faces);
                 valid = faces[0];
                 if(faces[0] == null){
                     header.innerHTML = "Error: No Face Detected";
@@ -56,8 +60,11 @@ function showImage(src, target, callback){
                 var newY = faces[0].y - (faces[0].height * .4);
                 var newWidth = faces[0].width + (faces[0].width * .8);
                 var newHeight = faces[0].height + (faces[0].height * .8);
-                context.clearRect(0,0,322,380);
-                context.drawImage(image1, newX , newY, newWidth, newHeight, 0, 0, 322, 380);
+                image1.src = imgData;
+                image1.onload = function(){
+                    context.clearRect(0,0,322,380);
+                    context.drawImage(image1, newX , newY, newWidth, newHeight, 0, 0, 322, 380);
+                }
             }
         });
         callback(valid);
@@ -89,6 +96,7 @@ function drawBestFit(ctx, angle, image) {
     ctx.setTransform(dx, dy, -dy, dx, canvas.width / 2, canvas.height / 2);
     
     ctx.drawImage(image, -image.width / 2, -image.height / 2, image.width, image.height);
+    imgData = canvas.toDataURL("image/jpeg");
     
     ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transformations when done
 
