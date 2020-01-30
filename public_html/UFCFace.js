@@ -53,6 +53,7 @@ function showImage(src, target, callback){
         //Detect face in user image, return if no face is found
         $('#boxes').faceDetection({
             complete: function (faces) {
+                console.log(faces);
                 valid = faces[0];
                 if(faces[0] == null){
                     header.innerHTML = "Error: No Face Detected";
@@ -61,8 +62,16 @@ function showImage(src, target, callback){
                 //Properly crop face from original image and display
                 var newX = faces[0].x - (faces[0].width * .5);
                 var newY = faces[0].y - (faces[0].height * .5);
+                if(newX < 0)
+                    newX = 0;
+                if(newY < 0)
+                    newY = 0;
                 var newWidth = faces[0].width + (faces[0].width * 1.0);
                 var newHeight = faces[0].height + (faces[0].height * 1.0);
+                if(newWidth > canvas.width)
+                    newWidth = canvas.width;
+                if(newHeight > canvas.height)
+                    newHeight = canvas.height;
                 image1.src = imgData;
                 image1.onload = function(){
                     context.clearRect(0,0,322,380);
