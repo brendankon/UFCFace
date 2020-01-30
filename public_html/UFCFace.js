@@ -53,7 +53,6 @@ function showImage(src, target, callback){
         //Detect face in user image, return if no face is found
         $('#boxes').faceDetection({
             complete: function (faces) {
-                console.log(faces);
                 valid = faces[0];
                 if(faces[0] == null){
                     header.innerHTML = "Error: No Face Detected";
