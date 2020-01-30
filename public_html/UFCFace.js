@@ -32,7 +32,7 @@ function showImage(src, target, callback){
         return;
     }
     header.innerHTML = "Analyzing...";
-    var degrees;
+    var degrees = 0;
     var fr = new FileReader();
     var valid = null;
     fr.onload = function(){
@@ -40,9 +40,10 @@ function showImage(src, target, callback){
     };
     //Update user image source
     fr.readAsDataURL(src.files[0]);
-    orientation(src.files[0], function(base64img, value){
-        var rotated = $('#PicBox1').attr('src', base64img);
-        if(value){
+    //Retrieve EXIF orientation value if it exists
+    EXIF.getData(src.files[0], function(){
+       var value = EXIF.getTag(this, "Orientation"); 
+       if(value){
             degrees = rotation[value];
         }
     });
@@ -186,50 +187,3 @@ function _arrayBufferToBase64( buffer ) {
   }
   return window.btoa( binary );
 }
-
-function orientation(file, callback) {
-    var fileReader = new FileReader();
-    fileReader.onloadend = function () {
-        var base64img = "data:" + file.type + ";base64," + _arrayBufferToBase64(fileReader.result);
-        var scanner = new DataView(fileReader.result);
-        var idx = 0;
-        var value = 1; // Non-rotated is the default
-        if (fileReader.result.length < 2 || scanner.getUint16(idx) != 0xFFD8) {
-            // Not a JPEG
-            if (callback) {
-                callback(base64img, value);
-            }
-            return;
-        }
-        idx += 2;
-        var maxBytes = scanner.byteLength;
-        var littleEndian = false;
-        while (idx < maxBytes - 2) {
-            var uint16 = scanner.getUint16(idx, littleEndian);
-            idx += 2;
-            switch (uint16) {
-                case 0xFFE1: // Start of EXIF
-                    var endianNess = scanner.getUint16(idx + 8);
-                    // II (0x4949) Indicates Intel format - Little Endian
-                    // MM (0x4D4D) Indicates Motorola format - Big Endian
-                    if (endianNess === 0x4949) {
-                        littleEndian = true;
-                    }
-                    var exifLength = scanner.getUint16(idx, littleEndian);
-                    maxBytes = exifLength - idx;
-                    idx += 2;
-                    break;
-                case 0x0112: // Orientation tag
-                    // Read the value, its 6 bytes further out
-                    // See page 102 at the following URL
-                    value = scanner.getUint16(idx + 6, littleEndian);
-                    maxBytes = 0; // Stop scanning
-                    break;
-            }
-        }
-        if (callback) {
-            callback(base64img, value);
-        }
-    }
-    fileReader.readAsArrayBuffer(file);
-};
