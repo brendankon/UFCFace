@@ -51,37 +51,48 @@ function showImage(src, target, callback){
     image1.onload = function(){
         context.clearRect(0,0,322,380);
         drawBestFit(context, degrees * Math.PI / 180, image1);
-        //Detect face in user image, return if no face is found
-        $('#boxes').faceDetection({
-            complete: function (faces) {
-                valid = faces[0];
-                if(faces[0] == null){
-                    header.innerHTML = "Error: No Face Detected";
-                    return;
+        var tracker = new tracking.ObjectTracker('face');
+        var canData = canvas.toDataURL("image/jpeg");
+        tracker.setStepSize(1);
+        tracker.setEdgesDensity(.1);
+        var newIm = document.createElement("img");
+        newIm.src = canData;
+        newIm.width = 322;
+        newIm.height = 380;
+        newIm.style.display = "none";
+        //Being face detection
+        tracking.track(newIm, tracker);
+        //Event triggered after faces are detected
+        tracker.on('track', function(event) {
+            valid = event.data;
+            if (event.data.length === 0) {
+                header.innerHTML = "Error: No Face Detected";
+                return;
+            } else {
+                    var newX = event.data[0].x - (event.data[0].width * .2);
+                    var newY = event.data[0].y - (event.data[0].height * .2);
+                    if(newX < 0)
+                        newX = 0;
+                    if(newY < 0)
+                        newY = 0;
+                    var newWidth = event.data[0].width + (event.data[0].width * .4);
+                    var newHeight = event.data[0].height + (event.data[0].height * .4);
+                    if(newWidth > canvas.width)
+                        newWidth = canvas.width;
+                    if(newHeight > canvas.height)
+                        newHeight = canvas.height;
+                    image1.src = imgData;
+                    image1.onload = function(){
+                       context.clearRect(0,0,322,380);
+                       context.drawImage(image1, newX , newY, newWidth, newHeight, 0, 0, 322, 380);
+                       croppedImgData = canvas.toDataURL("image/jpeg");
+                       callback(valid, croppedImgData);
+
+                    };
+
                 }
-                //Properly crop face from original image and display
-                var newX = faces[0].x - (faces[0].width * .5);
-                var newY = faces[0].y - (faces[0].height * .5);
-                if(newX < 0)
-                    newX = 0;
-                if(newY < 0)
-                    newY = 0;
-                var newWidth = faces[0].width + (faces[0].width * 1.0);
-                var newHeight = faces[0].height + (faces[0].height * 1.0);
-                if(newWidth > canvas.width)
-                    newWidth = canvas.width;
-                if(newHeight > canvas.height)
-                    newHeight = canvas.height;
-                image1.src = imgData;
-                image1.onload = function(){
-                    context.clearRect(0,0,322,380);
-                    context.drawImage(image1, newX , newY, newWidth, newHeight, 0, 0, 322, 380);
-                    croppedImgData = canvas.toDataURL("image/jpeg");
-                    callback(valid, croppedImgData);
-                }
-            }
         });
-    };
+    }
 }
 
 //Display image on canvas based on provided orientation
@@ -177,13 +188,3 @@ var rotation = {
   6: 90,
   8: 270
 };
-
-function _arrayBufferToBase64( buffer ) {
-  var binary = '';
-  var bytes = new Uint8Array( buffer );
-  var len = bytes.byteLength;
-  for (var i = 0; i < len; i++) {
-    binary += String.fromCharCode( bytes[ i ] );
-  }
-  return window.btoa( binary );
-}
