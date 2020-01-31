@@ -77,10 +77,10 @@ function showImage(src, target, callback){
                         newY = 0;
                     var newWidth = event.data[0].width + (event.data[0].width * .4);
                     var newHeight = event.data[0].height + (event.data[0].height * .4);
-                    if(newWidth > canvas.width)
-                        newWidth = canvas.width;
-                    if(newHeight > canvas.height)
-                        newHeight = canvas.height;
+                    if(newWidth > (canvas.width-40))
+                        newWidth = canvas.width-40;
+                    if(newHeight > (canvas.height-40))
+                        newHeight = canvas.height-40;
                     image1.src = imgData;
                     image1.onload = function(){
                        context.clearRect(0,0,322,380);
