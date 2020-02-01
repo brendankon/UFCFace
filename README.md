@@ -1,5 +1,5 @@
 # UFCFace
-UFCFace is a web application designed to perform facial comparison with current UFC fighters. Through the use of the Tensorflow.js and Tracking.js libraries, the application is able to perform facial detection/recognition at the client-side. 
+UFCFace.com is a web application designed to perform facial comparison with current UFC fighters. Through the use of the Tensorflow.js and Tracking.js libraries, the application is able to perform facial detection/recognition at the client-side. 
 
 # Workflow
 1.) The application first accepts user input in the form of a jpeg image
